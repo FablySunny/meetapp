@@ -1,28 +1,19 @@
-'use client'
-import { useEffect, useRef, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import type { Metadata } from "next";
+import "./globals.css";
 
-export default function MeetingRoom() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const params = useParams()
-  const router = useRouter()
-  const [roomUrl, setRoomUrl] = useState<string>('')
-  const [loading, setLoading] = useState(true)
+export const metadata: Metadata = {
+  title: "MeetApp",
+  description: "Video meetings simplified",
+};
 
-  useEffect(() => {
-    const setupRoom = async () => {
-      const res = await fetch('/api/create-room', { method: 'POST' })
-      const data = await res.json()
-      setRoomUrl(data.url)
-      setLoading(false)
-    }
-    setupRoom()
-  }, [])
-
-  useEffect(() => {
-    if (!roomUrl || !containerRef.current) return
-    const loadDaily = async () => {
-      const DailyIframe = (await import('@daily-co/daily-js')).default
-      const frame = DailyIframe.createFrame(containerRef.current!, {
-        showLeaveButton: true,
-        showFullsc
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
