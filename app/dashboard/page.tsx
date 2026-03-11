@@ -10,15 +10,31 @@ export default function Dashboard() {
   )
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [joinCode, setJoinCode] = useState('')
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) router.push('/login')
-      else setUser(user)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        router.push('/login')
+      } else {
+        setUser(session.user)
+      }
+      setLoading(false)
     }
     getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        router.push('/login')
+      } else {
+        setUser(session.user)
+        setLoading(false)
+      }
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   const createMeeting = async () => {
@@ -34,6 +50,12 @@ export default function Dashboard() {
     await supabase.auth.signOut()
     router.push('/login')
   }
+
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0a0a0b', color: 'white', fontSize: '20px' }}>
+      Loading...
+    </div>
+  )
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0b', color: 'white', padding: '40px' }}>
